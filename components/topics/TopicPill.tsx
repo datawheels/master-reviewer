@@ -7,11 +7,13 @@ export default function TopicPill({
   state, // "explicit" | "implicit" | "unselected"
   onClick,
   onRemove,
+  onOpenDetails, // NEW
 }: {
   node: TopicNode;
   state: "explicit" | "implicit" | "unselected";
   onClick: () => void;
   onRemove?: () => void; // only for explicit
+  onOpenDetails?: () => void; // NEW: shows right-arrow
 }) {
   const band = node.metrics?.band ?? 3;
 
@@ -27,6 +29,7 @@ export default function TopicPill({
   return (
     <button onClick={onClick} className={`${base} ${cls}`}>
       <span>{node.label}</span>
+
       <span
         className={`rounded-full px-2 py-[2px] text-[10px] border ${
           state === "explicit"
@@ -37,7 +40,27 @@ export default function TopicPill({
         {band}/5
       </span>
 
-      {/* Hover X for explicit only */}
+      {/* Details arrow (opens side panel) */}
+      {onOpenDetails && (
+        <span
+          onClick={(e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            onOpenDetails();
+          }}
+          className={`ml-1 inline-flex h-5 w-5 items-center justify-center rounded-full border text-[10px] ${
+            state === "explicit"
+              ? "border-neutral-300 bg-neutral-100 text-neutral-900"
+              : "border-neutral-700 bg-neutral-900/40 text-neutral-200"
+          } hover:opacity-90`}
+          title="Open details"
+          aria-label="Open topic details"
+        >
+          ›
+        </span>
+      )}
+
+      {/* Slice 1 compatibility: hover X only if onRemove is provided */}
       {state === "explicit" && onRemove && (
         <span
           onClick={(e) => {
